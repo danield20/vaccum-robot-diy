@@ -68,13 +68,13 @@ void HC_SR04_init()
 	TIMSK0 = 0;
 
 	sei(); // Enable global interrupts
-	TCCR0B |= (1 << CS02); // Prescaler = 256 => T = 16us
+	TCCR0B |= (1 << CS02); // Prescaler = 256, T = 16us
 	TIMSK0 |= (1 << TOIE0); // Enable Overflow interrupt
 
 	
 	for(int i = 0; i < NR_PINS; i++) {
-		DDRC |= _BV(triggers[i]); // Trigger
-		DDRC &= ~_BV(echo_pins[i]); // Echo
+		DDRC |= _BV(triggers[i]);
+		DDRC &= ~_BV(echo_pins[i]);
 	}
 	
 	for(int i = 0; i < NR_PINS; i++) {
@@ -104,6 +104,7 @@ float HC_SR04_get_distance(int pin_position)
 	/* Wait for the Echo */
 	while(flags[pin_position] == 0 && count <= 5);
 
+	/* sound speed = 343 m/s*/
 	cli();
 	sum = (((int)saved_tcnt0 + 255 * saved_count) * 16.0) * 0.01715;
 	sei();
@@ -272,7 +273,6 @@ int main(void)
 	straight_robot();
 
 	while(1) {
-		/* 16MHz Timer freq, sound speed = 343 m/s */
 
 		front_sensor = 0;
 		right_sensor = 0;
