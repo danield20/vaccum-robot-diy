@@ -22,7 +22,6 @@ static volatile uint8_t flags[3] = {0};
 static uint8_t front_sensor = 0, left_sensor = 0, right_sensor = 0;
 static int my_rand;
 
-
 ISR(TIMER0_OVF_vect, ISR_NOBLOCK)
 {
 	count++;
@@ -86,7 +85,7 @@ void HC_SR04_init()
 	PCMSK2 |= _BV(PCINT17) | _BV(PCINT19) | _BV(PCINT21) | _BV(PCINT23);
 }
 
-float HC_SR04_get_distance(int pin_position)
+float get_distance(int pin_position)
 {
 	double sum = 0;
 
@@ -112,7 +111,7 @@ float HC_SR04_get_distance(int pin_position)
 	return sum;
 }
 
-void right_MOTOR_set_duty_cycle(float percentage)
+void right_speed(float percentage)
 {
 	if (percentage >= 0.0f && percentage <= 1.0f) {
 		OCR2A = percentage * 256 - 1;
@@ -123,7 +122,7 @@ void right_MOTOR_set_duty_cycle(float percentage)
 	}
 }
 
-void left_MOTOR_set_duty_cycle(float percentage)
+void left_speed(float percentage)
 {
 	if (percentage >= 0.0f && percentage <= 1.0f) {
 		OCR2B = percentage * 256 - 1;
@@ -186,36 +185,31 @@ void set_direction_for_right(int a)
 }
 
 void stop_robot() {
-    right_MOTOR_set_duty_cycle(0.0f);
-    left_MOTOR_set_duty_cycle(0.0f);
+    right_speed(0.0f);
+    left_speed(0.0f);
 }
 
 void backwards_robot() {
 	set_direction_for_right(RIGHT_BACK);
 	set_direction_for_left(LEFT_BACK);
-    right_MOTOR_set_duty_cycle(0.52f);
-    left_MOTOR_set_duty_cycle(0.56f);
+    right_speed(0.52f);
+    left_speed(0.56f);
     _delay_ms(2000);
 }
 
 void straight_robot() {
 	set_direction_for_right(RIGHT_FORWARD);
 	set_direction_for_left(LEFT_FORWARD);
-    right_MOTOR_set_duty_cycle(0.52f);
-    left_MOTOR_set_duty_cycle(0.7f);
-}
-
-void set_speed_both_motors(float percentage) {
-	right_MOTOR_set_duty_cycle(percentage);
-	left_MOTOR_set_duty_cycle(percentage);
+    right_speed(0.52f);
+    left_speed(0.7f);
 }
 
 void turn_right_90_degrees()
 {
 	set_direction_for_right(RIGHT_BACK);
 	set_direction_for_left(LEFT_FORWARD);
-	right_MOTOR_set_duty_cycle(0.55f);
-    left_MOTOR_set_duty_cycle(0.55f);
+	right_speed(0.55f);
+    left_speed(0.55f);
 	_delay_ms(2000);
 	stop_robot();
 	_delay_ms(500);
@@ -225,8 +219,8 @@ void turn_left_90_degrees()
 {
 	set_direction_for_right(RIGHT_FORWARD);
 	set_direction_for_left(LEFT_BACK);
-	right_MOTOR_set_duty_cycle(0.55f);
-    left_MOTOR_set_duty_cycle(0.55f);
+	right_speed(0.55f);
+    left_speed(0.55f);
 	_delay_ms(2000);
 	stop_robot();
 	_delay_ms(500);
@@ -279,7 +273,7 @@ int main(void)
 		left_sensor = 0;
 
 		//stanga
-		distance = HC_SR04_get_distance(0);
+		distance = get_distance(0);
 		if (distance < 15) {
 			PORTA |= _BV(PA5);
 			left_sensor = 1;
@@ -290,7 +284,7 @@ int main(void)
 		_delay_ms(100);
 
 		//fata
-		distance2 = HC_SR04_get_distance(1);
+		distance2 = get_distance(1);
 		if (distance2 < 15) {
 			PORTA |= _BV(PA6);
 			front_sensor = 1;
@@ -304,7 +298,7 @@ int main(void)
 
 
 		//dreapta
-		distance3 = HC_SR04_get_distance(2);
+		distance3 = get_distance(2);
 		if (distance3 < 15) {
 			PORTA |= _BV(PA7);
 			right_sensor = 1;
@@ -327,6 +321,5 @@ int main(void)
 			else
 				turn_left_90_degrees();
 		}
-
 	}
 }
