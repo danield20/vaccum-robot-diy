@@ -21,6 +21,7 @@ static volatile uint8_t echo_pins[3] = {PC1, PC3, PC5};
 static volatile uint8_t flags[3] = {0};
 static uint8_t front_sensor = 0, left_sensor = 0, right_sensor = 0;
 static int my_rand;
+static int last_rand;
 
 ISR(TIMER0_OVF_vect, ISR_NOBLOCK)
 {
@@ -192,16 +193,17 @@ void stop_robot() {
 void backwards_robot() {
 	set_direction_for_right(RIGHT_BACK);
 	set_direction_for_left(LEFT_BACK);
-    right_speed(0.52f);
-    left_speed(0.56f);
+    right_speed(0.55f);
+    left_speed(0.59f);
     _delay_ms(2000);
+    stop_robot();
 }
 
 void straight_robot() {
 	set_direction_for_right(RIGHT_FORWARD);
 	set_direction_for_left(LEFT_FORWARD);
-    right_speed(0.52f);
-    left_speed(0.7f);
+    right_speed(0.55f);
+    left_speed(0.59f);
 }
 
 void turn_right_90_degrees()
@@ -209,8 +211,8 @@ void turn_right_90_degrees()
 	set_direction_for_right(RIGHT_BACK);
 	set_direction_for_left(LEFT_FORWARD);
 	right_speed(0.55f);
-    left_speed(0.55f);
-	_delay_ms(2000);
+    left_speed(0.65f);
+	_delay_ms(2650);
 	stop_robot();
 	_delay_ms(500);
 }
@@ -220,8 +222,8 @@ void turn_left_90_degrees()
 	set_direction_for_right(RIGHT_FORWARD);
 	set_direction_for_left(LEFT_BACK);
 	right_speed(0.55f);
-    left_speed(0.55f);
-	_delay_ms(2000);
+    left_speed(0.6f);
+	_delay_ms(3500);
 	stop_robot();
 	_delay_ms(500);
 }
@@ -263,6 +265,8 @@ int main(void)
 
 	MOTORS_init();
 	HC_SR04_init();
+
+	_delay_ms(3000);
 
 	straight_robot();
 
@@ -308,18 +312,37 @@ int main(void)
 
 		_delay_ms(100);
 
-		if (front_sensor && left_sensor && right_sensor)
+		if (front_sensor && left_sensor && right_sensor) {
 			backwards_robot();
-		else if (front_sensor && right_sensor)
-			turn_left_90_degrees();
-		else if (front_sensor && left_sensor)
 			turn_right_90_degrees();
-		else if (front_sensor) {
-			my_rand = rand() % 2;
-			if (my_rand == RIGHT)
-				turn_right_90_degrees();
-			else
-				turn_left_90_degrees();
+			last_rand = -1;
+		} else if (front_sensor && right_sensor) {
+			turn_left_90_degrees();
+			last_rand = -1;
+		} else if (front_sensor && left_sensor) {
+			turn_right_90_degrees();
+			last_rand = -1;
+		} else if (front_sensor) {
+
+			if (last_rand != -1) {
+
+				if (last_rand == RIGHT)
+					turn_right_90_degrees();
+				else
+					turn_left_90_degrees();
+			
+			} else {
+
+				my_rand = rand() % 2;
+				if (my_rand == RIGHT) {
+					turn_right_90_degrees();
+					last_rand = RIGHT;
+				} else {
+					turn_left_90_degrees();
+					last_rand = LEFT;
+				}
+
+			}
 		}
 	}
 }
