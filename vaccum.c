@@ -68,7 +68,7 @@ void HC_SR04_init()
 	TIMSK0 = 0;
 
 	sei(); // Enable global interrupts
-	TCCR0B |= (1 << CS02); // Prescaler = 256, T = 16us
+	TCCR0B |= (1 << CS02);
 	TIMSK0 |= (1 << TOIE0); // Enable Overflow interrupt
 
 	
