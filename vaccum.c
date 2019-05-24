@@ -106,7 +106,7 @@ float get_distance(int pin_position)
 
 	/* sound speed = 343 m/s*/
 	cli();
-	sum = (((int)saved_tcnt0 + 255 * saved_count) * 16.0) * 0.01715;
+	sum = (((int)saved_tcnt0 + 255 * saved_count) * 16.0 * 100) / 1.715;
 	sei();
 
 	return sum;
